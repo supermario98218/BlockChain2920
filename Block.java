@@ -74,7 +74,7 @@ public class Block {
 	 * Overwrites Arduino's value with the weather one if the web source was accurate (within range)
 	 * @param data - web source's weather value for that time
 	 */
-	public void setData(double data) {//block.setData(data);..to this instance of a block
+	public void setData(double data) {
 		this.data = data;
 	}
 	

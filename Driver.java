@@ -18,15 +18,6 @@ public class Driver {
 	
 	public static BufferedWriter out;
 	
-	public static void main(String[] args) throws IOException {
-		out = new BufferedWriter(new FileWriter("datareceived.txt"));
-		
-		//each block will have its respective info.  New block created every 30 min for 12 hours
-		//as we add the new block (using arduino value) during a specific time, we will then retrieve website temperature, and attempt to add a new block at which we will only compare temperature values within range
-		
-		weatherOperation();
-	}
-	
 	
 	/**
 	 * Goal is to create a new block with pulled arduino value every 30 minutes (1800 seconds). Instantaneously AFTER PULLING (in this case printing), we want to 
@@ -41,14 +32,28 @@ public class Driver {
 	 * 				websites pulled data, NOTE THAT WE HAVE WESBITE data(accurate web), delete all info in last block (websites) since it has now been stored in 2nd to last block)
 	 * 			ii. This last block now has no info and is dangling (DELETE IT....in other words, delete the n-1 block in chain), awaiting for next Arduino value...adds new block and repeats steps 1-3
 	 * 		b. once were done pulling there are maybe 25 minutes left, where program will know, then repeat
-	 * @author mariogarcia
+	 * @author Mario Garcia
 	 * @throws IOException 
 	 *
+	 */
+	public static void main(String[] args) throws IOException {
+		out = new BufferedWriter(new FileWriter("datareceived.txt"));
+		
+		//each block will have its respective info.  New block created every 30 min for 12 hours
+		//as we add the new block (using arduino value) during a specific time, we will then retrieve website temperature, and attempt to add a new block at which we will only compare temperature values within range
+		
+		weatherOperation();
+	}
+	
+	
+	/**
+	 * Actual operation being performed (does the entire purpose of the project)
+	 * @throws IOException
 	 */
 	public static void weatherOperation() throws IOException {
 		
 		double [] arduinoTemp = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-		double [] websiteTemp = {3, 5, 5, 7 ,5, 8, 10, 6 ,14, 16, 19, 18};//arduinoTemp[0, 2, 4,5, 7] = 3, 5, 5, 8, 6-- should be oveerwritten with websources values
+		double [] websiteTemp = {3, 5, 5, 7 ,5, 8, 10, 6 ,14, 16, 19, 18};
 		Boolean [] webValid = {false, false, false, false, false, false, false, false, false, false, false, false};
 		
 		 final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -68,7 +73,7 @@ public class Driver {
 					 arduinoChain.add(new Block(arduinoTemp[counter], "0"));
 					 //grab website data function, store in array so that you can do the following
 					 webChain.add(new Block(websiteTemp[counter], "0"));//hashes dont really matter now
-					 //overrwrite data in arduinoChain with webChain if webChain has temp value of +/- 2 degrees (accurate)
+					 //overwrite data in arduinoChain with webChain if webChain has temp value of +/- 2 degrees (accurate)
 					 if((webChain.get(counter).getData() == arduinoChain.get(counter).getData())  ||  (webChain.get(counter).getData() - arduinoChain.get(counter).getData() == 2)  ||  (webChain.get(counter).getData() - arduinoChain.get(counter).getData() == -2)){	//if website & arduino equal each other "1 degree" . equals "1. degree"
 						 //we can either leave arduinos value or put web data...lets put web data's
 						 arduinoChain.get(counter).setData(webChain.get(counter).getData());
@@ -129,8 +134,6 @@ public class Driver {
 				 System.exit(0); 
 			 }//cancel within a time period
 		 }, 110, SECONDS);//cancels after -- 110 seconds---will allow 12 items to print since first prints instantly
-		 
-		 //System.out.println(operationHandler.isDone());
-		
+	
 	}
 }
